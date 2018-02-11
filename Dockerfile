@@ -11,6 +11,7 @@ ARG hadoop_tar=http://apache.mirror.iphh.net/hadoop/common/hadoop-2.6.5/hadoop-2
 
 RUN mkdir /workspace
 WORKDIR /workspace
+COPY conf/* .
 
 ############################################################# utilities
 RUN zypper --non-interactive install vim
@@ -29,7 +30,7 @@ RUN ssh-keygen -q -N "" -t ed25519 -f /etc/ssh/ssh_host_ed25519_key
 RUN ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa
 RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 
-COPY conf/ssh_config /root/.ssh/config
+RUN mv ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
 RUN chown root:root /root/.ssh/config
 
@@ -59,14 +60,14 @@ ENV HADOOP_COMMON_LIB_NATIVE_DIR $HADOOP_HOME/lib/native
 ENV HADOOP_INSTALL $HADOOP_HOME
 ENV PATH $PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
 
-RUN cd $HADOOP_HOME/etc/hadoop
-COPY conf/core-site.xml core-site.xml
-COPY conf/hdfs-site.xml hdfs-site.xml
-COPY conf/mapred-site.xml mapred-site.xml
-RUN echo 'export HADOOP_SSH_OPTS="-p 2222"' >> hadoop-env.sh
+COPY conf/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
+COPY conf/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+COPY conf/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
+RUN echo 'export HADOOP_SSH_OPTS="-p 2222"' >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
 RUN mkdir -p /home/hadoop/hadoopinfra/hdfs/{namenode,datanode}
 RUN $HADOOP_HOME/bin/hdfs namenode -format
+RUN $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 RUN start-dfs.sh
 RUN start-yarn.sh
 
@@ -86,4 +87,6 @@ RUN pip install -r python_requirements.txt
 
 ########################################################### Apache Spark 
 
+
+RUN rm *
 
