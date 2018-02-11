@@ -54,10 +54,10 @@ ENV HADOOP_HOME /usr/local/hadoop
 ENV HADOOP_MAPRED_HOME $HADOOP_HOME
 ENV HADOOP_COMMON_HOME $HADOOP_HOME
 ENV HADOOP_HDFS_HOME $HADOOP_HOME
-ENV YARN_HOME $HADOOP_HOME 
+ENV YARN_HOME $HADOOP_HOME
 ENV HADOOP_COMMON_LIB_NATIVE_DIR $HADOOP_HOME/lib/native 
-ENV HADOOP_INSTALL $HADOOP_HOME 
-ENV PATH $PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin 
+ENV HADOOP_INSTALL $HADOOP_HOME
+ENV PATH $PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
 
 RUN cd $HADOOP_HOME/etc/hadoop
 COPY conf/core-site.xml core-site.xml
@@ -65,6 +65,7 @@ COPY conf/hdfs-site.xml hdfs-site.xml
 COPY conf/mapred-site.xml mapred-site.xml
 RUN echo 'export HADOOP_SSH_OPTS="-p 2222"' >> hadoop-env.sh
 
+RUN mkdir -p /home/hadoop/hadoopinfra/hdfs/{namenode,datanode}
 RUN $HADOOP_HOME/bin/hdfs namenode -format
 RUN start-dfs.sh
 RUN start-yarn.sh
@@ -83,7 +84,6 @@ RUN pip install --upgrade pip
 COPY conf/python_requirements.txt python_requirements.txt
 RUN pip install -r python_requirements.txt
 
-## Apache Spark 
-
+########################################################### Apache Spark 
 
 
